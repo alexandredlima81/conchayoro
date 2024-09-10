@@ -1,6 +1,6 @@
 name: pipeline-ecr-ebs
 
-on: 
+on:
   push:
     branches: [ main ]
 
@@ -9,9 +9,9 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
-  MODULE_NAME: ${{ secrets.MODULE_NAME }}
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+  MODULE_NAME: ${{ vars.MODULE_NAME }}
   TAG: latest
   STACK_NAME: "64bit Amazon Linux 2 v3.5.7 running Docker"
 
@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      MODULE_FULLNAME: ${{ secrets.PROJECT_NAME }}/${{ secrets.MODULE_NAME }}
-      REGISTRY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+      MODULE_FULLNAME: ${{ vars.PROJECT_NAME }}/${{ vars.MODULE_NAME }}
+      REGISTRY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
 
     steps:
     - uses: actions/checkout@v4
@@ -30,20 +30,14 @@ jobs:
         node-version: '18'
         cache: 'npm'
 
-    - run: |
-        echo "Building Docker image..."
-        docker build -t $MODULE_FULLNAME ./path/to/dockerfile/context
+    - run: docker build -t $MODULE_FULLNAME $MODULE_NAME
 
     - run: |
-        echo "Tagging Docker image..."
         docker tag $MODULE_FULLNAME:$TAG \
         $REGISTRY_URL/$MODULE_FULLNAME:$TAG
 
     - run: |
-        echo "Logging into AWS ECR..."
         aws ecr get-login-password --region $AWS_REGION | \
         docker login --username AWS --password-stdin $REGISTRY_URL
 
-    - run: |
-        echo "Pushing Docker image to AWS ECR..."
-        docker push $REGISTRY_URL/$MODULE_FULLNAME:$TAG
+    - run: docker push $REGISTRY_URL/$MODULE_FULLNAME:$TAG
