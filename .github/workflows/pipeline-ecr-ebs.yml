@@ -35,11 +35,3 @@ jobs:
         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
         docker login --username AWS --password-stdin $REGISTRY_URL
     - run: docker push $REGISTRY_URL/$MODULE_FULLNAME:$TAG
-     # Etapa para depurar variáveis de ambiente
-    - run: |
-        echo "AWS_REGION: $AWS_REGION"
-        echo "BUCKET_S3: $BUCKET_S3"
-        echo "REGISTRY_URL: $REGISTRY_URL"
-        echo "MODULE_FULLNAME: $MODULE_FULLNAME"
-
-    - run: aws s3 cp frontend/.next/server/app s3://$BUCKET_S3 --recursive --acl public-read
