@@ -7,7 +7,7 @@ environment-defaults:
     repository: null
 global:
   application_name: conchayoro
-  default_ec2_keyname: "ec2 taste"
+  default_ec2_keyname: ec2 taste
   default_platform: Docker
   default_region: us-east-1
   include_git_submodules: true
